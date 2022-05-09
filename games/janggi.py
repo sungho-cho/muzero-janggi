@@ -150,7 +150,7 @@ class Game(AbstractGame):
         Returns:
             The new observation, the reward and a boolean if the game has ended.
         """
-        observation, reward, done = self.env.step(action)
+        observation, reward, done, info = self.env.step(action)
         self.turn = self.env.turn
         return self.get_observation(observation), reward, done
 
