@@ -1,4 +1,6 @@
+pyjanggi
 gym[classic_control]
+gym-janggi
 nevergrad
 numpy
 ray
