@@ -94,3 +94,4 @@ dmypy.json
 
 # Training results
 results/
+logs/
