@@ -22,7 +22,7 @@ class MuZeroConfig:
 
 
         # Game
-        self.observation_shape = (10, 9, 3)  # Dimensions of the game observation, must be 3 (channel, height, width). For a 1D array, please reshape it to (1, 1, length of array)
+        self.observation_shape = (3, 10, 9)  # Dimensions of the game observation, must be 3 (channel, height, width). For a 1D array, please reshape it to (1, 1, length of array)
         self.action_space = list(range(9999))  # Fixed list of all possible actions. You should only edit the length
         self.players = list(range(2))  # List of players. You should only edit the length
         self.stacked_observations = 100  # Number of previous observations and previous actions to add to the current observation
@@ -138,7 +138,7 @@ class Game(AbstractGame):
 
     def __init__(self, seed=None):
         self.env = gym.make("gym_janggi/Janggi-v0")
-        self.turn = self.env.turn
+        self.complete_games = 0
 
     def step(self, action):
         """
@@ -151,7 +151,7 @@ class Game(AbstractGame):
             The new observation, the reward and a boolean if the game has ended.
         """
         observation, reward, done, _ = self.env.step(action)
-        self.turn = self.env.turn
+        self.turn = self.env.to_play()
         return self.get_observation(observation), reward, done
 
     def get_observation(self, env_observation):
@@ -189,8 +189,9 @@ class Game(AbstractGame):
         Returns:
             Initial observation of the game.
         """
-        observation = self.env.reset()
-        self.turn = self.env.turn
+        observation, history = self.env.reset()
+        self.save_history(history)
+        self.turn = self.env.to_play()
         return self.get_observation(observation)
 
     def close(self):
@@ -198,6 +199,7 @@ class Game(AbstractGame):
         Properly close the game.
         """
         history = self.env.close()
+        self.save_history(history)
 
     def render(self):
         """
@@ -223,8 +225,22 @@ class Game(AbstractGame):
         """
         Convert an action number to a string representing the action.
         Args:
-            action_number: an integer from the action space.
+            action: an integer from the action space.
         Returns:
             String representing the action.
         """
         return self.env.action_to_human_input(action)
+
+    def save_history(self, history):
+        """
+        Save game history to logs directory.
+
+        Args:
+            history: History data to store for future reference.
+        """
+        if not history:
+            return
+        log_file = pathlib.Path(__file__).resolve().parents[1] / "logs" / str(self.complete_games)
+        with open(log_file, "w") as f:
+            f.write(str(history))
+        self.complete_games += 1
