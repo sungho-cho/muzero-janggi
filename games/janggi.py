@@ -245,5 +245,5 @@ class Game(AbstractGame):
         log_file = logs_path / str(self.complete_games)
         with open(log_file, "w") as f:
             for from_location, to_location in history:
-                f.write(f"{from_location}, {to_location}\n")
+                f.write(f"{str(from_location)}, {str(to_location)}\n")
         self.complete_games += 1
