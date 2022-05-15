@@ -240,7 +240,10 @@ class Game(AbstractGame):
         """
         if not history:
             return
-        log_file = pathlib.Path(__file__).resolve().parents[1] / "logs" / str(self.complete_games)
+        logs_path = pathlib.Path(__file__).resolve().parents[1] / "logs"
+        logs_path.mkdir(parents=False, exist_ok=True)
+        log_file = logs_path / str(self.complete_games)
         with open(log_file, "w") as f:
-            f.write(str(history))
+            for from_location, to_location in history:
+                f.write(f"{from_location}, {to_location}\n")
         self.complete_games += 1
