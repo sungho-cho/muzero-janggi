@@ -22,10 +22,10 @@ class MuZeroConfig:
 
 
         # Game
-        self.observation_shape = (3, 10, 9)  # Dimensions of the game observation, must be 3 (channel, height, width). For a 1D array, please reshape it to (1, 1, length of array)
+        self.observation_shape = (10, 9, 3)  # Dimensions of the game observation, must be 3 (channel, height, width). For a 1D array, please reshape it to (1, 1, length of array)
         self.action_space = list(range(9999))  # Fixed list of all possible actions. You should only edit the length
         self.players = list(range(2))  # List of players. You should only edit the length
-        self.stacked_observations = 0  # Number of previous observations and previous actions to add to the current observation
+        self.stacked_observations = 100  # Number of previous observations and previous actions to add to the current observation
 
         # Evaluate
         self.muzero_player = 0  # Turn Muzero begins to play (0: MuZero plays first, 1: MuZero plays second)
@@ -37,7 +37,7 @@ class MuZeroConfig:
         self.num_workers = 10  # Number of simultaneous threads/workers self-playing to feed the replay buffer
         self.selfplay_on_gpu = False
         self.max_moves = 200  # Maximum number of moves if game is not finished before
-        self.num_simulations = 400  # Number of future moves self-simulated
+        self.num_simulations = 800  # Number of future moves self-simulated
         self.discount = 1  # Chronological discount of the reward
         self.temperature_threshold = None  # Number of moves before dropping the temperature given by visit_softmax_temperature_fn to 0 (ie selecting the best action). If None, visit_softmax_temperature_fn is used every time
 
@@ -79,9 +79,9 @@ class MuZeroConfig:
         # Training
         self.results_path = pathlib.Path(__file__).resolve().parents[1] / "results" / pathlib.Path(__file__).stem / datetime.datetime.now().strftime("%Y-%m-%d--%H-%M-%S")  # Path to store the model weights and TensorBoard logs
         self.save_model = True  # Save the checkpoint in results_path as model.checkpoint
-        self.training_steps = 10000  # Total number of training steps (ie weights update according to a batch)
+        self.training_steps = 100  # Total number of training steps (ie weights update according to a batch)
         self.batch_size = 512  # Number of parts of games to train on at each training step
-        self.checkpoint_interval = 50  # Number of training steps before using the model for self-playing
+        self.checkpoint_interval = 10  # Number of training steps before using the model for self-playing
         self.value_loss_weight = 1  # Scale the value loss to avoid overfitting of the value function, paper recommends 0.25 (See paper appendix Reanalyze)
         self.train_on_gpu = torch.cuda.is_available()  # Train on GPU if available
 
@@ -90,8 +90,8 @@ class MuZeroConfig:
         self.momentum = 0.9  # Used only if optimizer is SGD
 
         # Exponential learning rate schedule
-        self.lr_init = 0.002  # Initial learning rate
-        self.lr_decay_rate = 0.9  # Set it to 1 to use a constant learning rate
+        self.lr_init = 0.1  # Initial learning rate
+        self.lr_decay_rate = 0.1  # Set it to 1 to use a constant learning rate
         self.lr_decay_steps = 10000
 
 
@@ -112,7 +112,7 @@ class MuZeroConfig:
         # Adjust the self play / training ratio to avoid over/underfitting
         self.self_play_delay = 0  # Number of seconds to wait after each played game
         self.training_delay = 0  # Number of seconds to wait after each training step
-        self.ratio = 1  # Desired training steps per self played step ratio. Equivalent to a synchronous version, training can take much longer. Set it to None to disable it
+        self.ratio = None  # Desired training steps per self played step ratio. Equivalent to a synchronous version, training can take much longer. Set it to None to disable it
         # fmt: on
 
     def visit_softmax_temperature_fn(self, trained_steps):
@@ -155,8 +155,8 @@ class Game(AbstractGame):
         return self.get_observation(observation), reward, done
 
     def get_observation(self, env_observation):
-        board_player1 = numpy.where(env_observation > 0, 1.0, 0.0)
-        board_player2 = numpy.where(env_observation < 0, 1.0, 0.0)
+        board_player1 = numpy.where(env_observation > 0, env_observation, 0.0)
+        board_player2 = numpy.where(env_observation < 0, env_observation, 0.0)
         board_to_play = numpy.full((10, 9), self.turn, dtype="int32")
         return numpy.array([board_player1, board_player2, board_to_play])
 
