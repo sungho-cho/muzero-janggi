@@ -7,6 +7,7 @@ import torch
 
 import gym
 import gym_janggi
+from janggi import JanggiGame
 
 from .abstract_game import AbstractGame
 
@@ -151,13 +152,12 @@ class Game(AbstractGame):
             The new observation, the reward and a boolean if the game has ended.
         """
         observation, reward, done, _ = self.env.step(action)
-        self.turn = self.env.to_play()
         return self.get_observation(observation), reward, done
 
     def get_observation(self, env_observation):
-        board_player1 = numpy.where(env_observation > 0, env_observation, 0.0)
-        board_player2 = numpy.where(env_observation < 0, env_observation, 0.0)
-        board_to_play = numpy.full((10, 9), self.turn, dtype="int32")
+        board_player1 = numpy.where(env_observation > 0.0, env_observation, 0.0)
+        board_player2 = numpy.where(env_observation < 0.0, env_observation, 0.0)
+        board_to_play = numpy.full((10, 9), self.to_play(), dtype="int32")
         return numpy.array([board_player1, board_player2, board_to_play])
 
     def to_play(self):
@@ -189,17 +189,15 @@ class Game(AbstractGame):
         Returns:
             Initial observation of the game.
         """
-        observation, history = self.env.reset()
-        self.save_history(history)
-        self.turn = self.env.to_play()
+        observation, move_logs = self.env.reset()
+        self.save_logs(move_logs)
         return self.get_observation(observation)
 
     def close(self):
         """
         Properly close the game.
         """
-        history = self.env.close()
-        self.save_history(history)
+        self.env.close()
 
     def render(self):
         """
@@ -231,19 +229,20 @@ class Game(AbstractGame):
         """
         return self.env.action_to_human_input(action)
 
-    def save_history(self, history):
+    def save_logs(self, move_logs):
         """
-        Save game history to logs directory.
+        Save move logs to logs/ directory.
 
         Args:
-            history: History data to store for future reference.
+            move_logs: Log data to store for future reference.
         """
-        if not history:
+        if not move_logs:
             return
         logs_path = pathlib.Path(__file__).resolve().parents[1] / "logs"
         logs_path.mkdir(parents=False, exist_ok=True)
         log_file = logs_path / str(self.complete_games)
         with open(log_file, "w") as f:
-            for from_location, to_location in history:
-                f.write(f"{str(from_location)}, {str(to_location)}\n")
+            board_logs = self.env.simulate_logs(move_logs)
+            for board_log in board_logs:
+                f.write(f"{board_log}\n")
         self.complete_games += 1
