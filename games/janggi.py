@@ -191,7 +191,7 @@ class Game(AbstractGame):
             Initial observation of the game.
         """
         observation, move_logs = self.env.reset()
-        self.save_logs(move_logs)
+        # self.save_logs(move_logs)
         return self.get_observation(observation)
 
     def close(self):
