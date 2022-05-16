@@ -29,11 +29,13 @@ class SelfPlay:
         self.model.eval()
 
     def continuous_self_play(self, shared_storage, replay_buffer, test_mode=False):
+        print("Continuous self play START")
         while ray.get(
             shared_storage.get_info.remote("training_step")
         ) < self.config.training_steps and not ray.get(
             shared_storage.get_info.remote("terminate")
         ):
+            print("Continuous self play WHILE")
             self.model.set_weights(ray.get(shared_storage.get_info.remote("weights")))
 
             if not test_mode:
@@ -48,7 +50,7 @@ class SelfPlay:
                     "self",
                     0,
                 )
-                print(f"History: {game_history}")
+                print(f"Coninuous self play while NOT TEST / History: {game_history}")
 
                 replay_buffer.save_game.remote(game_history, shared_storage)
 
@@ -61,6 +63,7 @@ class SelfPlay:
                     "self" if len(self.config.players) == 1 else self.config.opponent,
                     self.config.muzero_player,
                 )
+                print(f"Coninuous self play while TEST / History: {game_history}")
 
                 # Save to the shared storage
                 shared_storage.set_info.remote(
