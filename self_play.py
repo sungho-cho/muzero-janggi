@@ -48,6 +48,7 @@ class SelfPlay:
                     "self",
                     0,
                 )
+                print(f"History: {game_history}")
 
                 replay_buffer.save_game.remote(game_history, shared_storage)
 
