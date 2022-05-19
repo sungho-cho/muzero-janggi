@@ -66,6 +66,7 @@ class SelfPlay:
                 print(f"episode length: {len(game_history.action_history) - 1}")
                 print(f"total reward: {sum(game_history.reward_history)}")
                 print(f"mean value: {numpy.mean([value for value in game_history.root_values if value])}")
+                print(f"root values: {game_history.root_values}")
                 # if sum(game_history.reward_history) > 80.0:
                 #     print(f"action history: {game_history.action_history}")
 

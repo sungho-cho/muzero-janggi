@@ -168,7 +168,7 @@ class Game(AbstractGame):
         Returns:
             The current player, it should be an element of the players list in the config.
         """
-        return self.env.to_play()
+        return 0 if self.env.to_play() == 1 else 1
 
     def legal_actions(self):
         """
