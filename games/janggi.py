@@ -158,7 +158,7 @@ class Game(AbstractGame):
     def get_observation(self, env_observation):
         board_player1 = numpy.where(env_observation > 0.0, env_observation, 0.0)
         board_player2 = numpy.where(env_observation < 0.0, env_observation, 0.0)
-        board_to_play = numpy.full((10, 9), self.to_play(), dtype="float32")
+        board_to_play = numpy.full((10, 9), self.env.to_play(), dtype="float32")
         return numpy.array([board_player1, board_player2, board_to_play])
 
     def to_play(self):
