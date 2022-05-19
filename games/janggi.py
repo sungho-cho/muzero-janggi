@@ -190,8 +190,8 @@ class Game(AbstractGame):
         Returns:
             Initial observation of the game.
         """
-        observation, move_logs = self.env.reset()
-        # self.save_logs(move_logs)
+        observation, game_log = self.env.reset()
+        self.save_log(game_log)
         return self.get_observation(observation)
 
     def close(self):
@@ -230,20 +230,19 @@ class Game(AbstractGame):
         """
         return self.env.action_to_human_input(action)
 
-    def save_logs(self, move_logs):
+    def save_log(self, game_log):
         """
-        Save move logs to logs/ directory.
+        Save game log to logs/ directory.
 
         Args:
-            move_logs: Log data to store for future reference.
+            game_log: Log data to store for future reference.
         """
-        if not move_logs:
+        if not game_log.move_logs:
             return
         logs_path = pathlib.Path(__file__).resolve().parents[1] / "logs"
         logs_path.mkdir(parents=False, exist_ok=True)
         log_file = logs_path / str(self.complete_games)
         with open(log_file, "w") as f:
-            board_logs = self.env.simulate_logs(move_logs)
-            for board_log in board_logs:
-                f.write(f"{board_log}\n")
+            proto_str = game_log.to_proto().SerializeToString()
+            f.write(proto_str)
         self.complete_games += 1
