@@ -242,7 +242,7 @@ class Game(AbstractGame):
         logs_path = pathlib.Path(__file__).resolve().parents[1] / "logs"
         logs_path.mkdir(parents=False, exist_ok=True)
         log_file = logs_path / str(self.complete_games)
-        with open(log_file, "w") as f:
+        with open(log_file, "wb") as f:
             proto_str = game_log.to_proto().SerializeToString()
             f.write(proto_str)
         self.complete_games += 1
