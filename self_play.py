@@ -45,7 +45,7 @@ class SelfPlay:
                         )
                     ),
                     self.config.temperature_threshold,
-                    True,
+                    False,
                     "self",
                     0,
                 )
@@ -58,7 +58,7 @@ class SelfPlay:
                 game_history = self.play_game(
                     0,
                     self.config.temperature_threshold,
-                    True,
+                    False,
                     "self" if len(self.config.players) == 1 else self.config.opponent,
                     self.config.muzero_player,
                 )
