@@ -237,7 +237,7 @@ class Game(AbstractGame):
         Args:
             game_log: Log data to store for future reference.
         """
-        if not game_log.move_logs:
+        if not game_log.move_log:
             return
         logs_path = pathlib.Path(__file__).resolve().parents[1] / "logs"
         logs_path.mkdir(parents=False, exist_ok=True)
