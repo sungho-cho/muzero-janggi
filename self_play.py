@@ -138,6 +138,8 @@ class SelfPlay:
             while (
                 not done and len(game_history.action_history) <= self.config.max_moves
             ):
+                if len(game_history.action_history) > 0 and len(game_history.action_history) % 10 == 0:
+                    print(f"Move #: {len(game_history.action_history)}")
                 assert (
                     len(numpy.array(observation).shape) == 3
                 ), f"Observation should be 3 dimensionnal instead of {len(numpy.array(observation).shape)} dimensionnal. Got observation of shape: {numpy.array(observation).shape}"
@@ -176,6 +178,10 @@ class SelfPlay:
                     )
 
                 observation, reward, done = self.game.step(action)
+
+                if reward > 0.0:
+                    print(f"Positive reward: {reward}")
+                    print(f"Observation:\n{observation}")
 
                 if render:
                     print(f"Played action: {self.game.action_to_string(action)}")
