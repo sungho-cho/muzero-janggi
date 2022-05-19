@@ -204,7 +204,7 @@ class Game(AbstractGame):
         """
         Display the game observation.
         """
-        self.env.render()
+        self.env.render(mode="ansi")
         input("Press enter to take a step ")
 
     def human_to_action(self):
