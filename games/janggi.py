@@ -37,8 +37,8 @@ class MuZeroConfig:
         # Self-Play
         self.num_workers = 10  # Number of simultaneous threads/workers self-playing to feed the replay buffer
         self.selfplay_on_gpu = False
-        self.max_moves = 300  # Maximum number of moves if game is not finished before
-        self.num_simulations = 800  # Number of future moves self-simulated (based on paper)
+        self.max_moves = 200  # Maximum number of moves if game is not finished before
+        self.num_simulations = 400  # Number of future moves self-simulated (based on paper)
         self.discount = 0.997  # Chronological discount of the reward (based on paper)
         self.temperature_threshold = None  # Number of moves before dropping the temperature given by visit_softmax_temperature_fn to 0 (ie selecting the best action). If None, visit_softmax_temperature_fn is used every time
 
@@ -59,13 +59,13 @@ class MuZeroConfig:
         # Residual Network
         self.downsample = False  # Downsample observations before representation network, False / "CNN" (lighter) / "resnet" (See paper appendix Network Architecture)
         self.blocks = 16  # Number of blocks in the ResNet (based on paper)
-        self.channels = 256  # Number of channels in the ResNet (based on paper)
-        self.reduced_channels_reward = 256  # Number of channels in reward head
-        self.reduced_channels_value = 256  # Number of channels in value head
-        self.reduced_channels_policy = 256  # Number of channels in policy head
-        self.resnet_fc_reward_layers = [256]  # Define the hidden layers in the reward head of the dynamic network
-        self.resnet_fc_value_layers = [256]  # Define the hidden layers in the value head of the prediction network
-        self.resnet_fc_policy_layers = [256]  # Define the hidden layers in the policy head of the prediction network
+        self.channels = 64  # Number of channels in the ResNet (based on paper)
+        self.reduced_channels_reward = 64  # Number of channels in reward head
+        self.reduced_channels_value = 64  # Number of channels in value head
+        self.reduced_channels_policy = 64  # Number of channels in policy head
+        self.resnet_fc_reward_layers = [64]  # Define the hidden layers in the reward head of the dynamic network
+        self.resnet_fc_value_layers = [64]  # Define the hidden layers in the value head of the prediction network
+        self.resnet_fc_policy_layers = [64]  # Define the hidden layers in the policy head of the prediction network
 
         # Fully Connected Network
         self.encoding_size = 32
@@ -80,7 +80,7 @@ class MuZeroConfig:
         # Training
         self.results_path = pathlib.Path(__file__).resolve().parents[1] / "results" / pathlib.Path(__file__).stem / datetime.datetime.now().strftime("%Y-%m-%d--%H-%M-%S")  # Path to store the model weights and TensorBoard logs
         self.save_model = True  # Save the checkpoint in results_path as model.checkpoint
-        self.training_steps = 1000  # Total number of training steps (ie weights update according to a batch) (based on paper)
+        self.training_steps = 100  # Total number of training steps (ie weights update according to a batch) (based on paper)
         self.batch_size = 2048  # Number of parts of games to train on at each training step (based on paper)
         self.checkpoint_interval = 10  # Number of training steps before using the model for self-playing
         self.value_loss_weight = 1  # Scale the value loss to avoid overfitting of the value function, paper recommends 0.25 (See paper appendix Reanalyze)
