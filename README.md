@@ -86,7 +86,7 @@ Network summary:
 git clone https://github.com/sungho-cho/muzero-janggi.git
 cd muzero-janggi
 
-pip install -r requirements.txt
+pip install -r requirements.lock
 ```
 
 ### Run
