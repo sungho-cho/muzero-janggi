@@ -23,7 +23,7 @@ class MuZeroConfig:
 
 
         # Game
-        self.observation_shape = (3, 10, 9)  # Dimensions of the game observation, must be 3 (channel, height, width). For a 1D array, please reshape it to (1, 1, length of array)
+        self.observation_shape = (15, 10, 9)  # Dimensions of the game observation, must be 3 (channel, height, width). For a 1D array, please reshape it to (1, 1, length of array)
         self.action_space = list(range(9999))  # Fixed list of all possible actions. You should only edit the length
         self.players = list(range(2))  # List of players. You should only edit the length
         self.stacked_observations = 100  # Number of previous observations and previous actions to add to the current observation
@@ -125,7 +125,7 @@ class MuZeroConfig:
             Positive float.
         """
         # Values based on paper
-        if trained_steps < 500.0 * self.training_steps: 
+        if trained_steps < 500.0 * self.training_steps:
             return 1.0
         elif trained_steps < 750.0 * self.training_steps:
             return 0.5
@@ -152,14 +152,20 @@ class Game(AbstractGame):
         Returns:
             The new observation, the reward and a boolean if the game has ended.
         """
-        observation, reward, done, _ = self.env.step(action)
+        observation, reward, done, info = self.env.step(action)
+        if done and "log" in info:
+            self.save_log(info["log"])
         return self.get_observation(observation), reward, done
 
     def get_observation(self, env_observation):
-        board_player1 = numpy.where(env_observation > 0.0, env_observation, 0.0)
-        board_player2 = numpy.where(env_observation < 0.0, env_observation, 0.0)
-        board_to_play = numpy.full((10, 9), self.env.to_play(), dtype="float32")
-        return numpy.array([board_player1, board_player2, board_to_play])
+        boards_piece = []
+        for i in range(-7, 8):  # 14 planes
+            if i == 0:
+                continue
+            boards_piece.append(numpy.where(env_observation == i, 1.0, 0.0))
+        board_to_play = numpy.full(  # 1 plane
+            (10, 9), self.env.to_play(), dtype="float32")
+        return numpy.array(boards_piece + [board_to_play])
 
     def to_play(self):
         """
@@ -190,8 +196,7 @@ class Game(AbstractGame):
         Returns:
             Initial observation of the game.
         """
-        observation, game_log = self.env.reset()
-        self.save_log(game_log)
+        observation = self.env.reset()
         return self.get_observation(observation)
 
     def close(self):
