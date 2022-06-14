@@ -8,9 +8,6 @@ import torch
 import models
 
 
-numpy.set_printoptions(threshold=10)
-
-
 @ray.remote
 class SelfPlay:
     """
@@ -31,6 +28,8 @@ class SelfPlay:
         self.model.to(torch.device(
             "cuda" if self.config.selfplay_on_gpu else "cpu"))
         self.model.eval()
+
+        numpy.set_printoptions(threshold=20)
 
     def continuous_self_play(self, shared_storage, replay_buffer, test_mode=False):
         print("Continuous self play START")
