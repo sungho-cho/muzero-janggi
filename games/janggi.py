@@ -244,6 +244,7 @@ class Game(AbstractGame):
         """
         if not game_log.move_log:
             return
+        print("Saving log...")
         logs_path = pathlib.Path(__file__).resolve().parents[1] / "logs"
         logs_path.mkdir(parents=False, exist_ok=True)
         log_file = logs_path / str(self.complete_games)
