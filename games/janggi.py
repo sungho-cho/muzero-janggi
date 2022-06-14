@@ -140,7 +140,6 @@ class Game(AbstractGame):
 
     def __init__(self, seed=None):
         self.env = gym.make("gym_janggi/Janggi-v0")
-        self.complete_games = 0
 
     def step(self, action):
         """
@@ -247,8 +246,8 @@ class Game(AbstractGame):
         print("Saving log...")
         logs_path = pathlib.Path(__file__).resolve().parents[1] / "logs"
         logs_path.mkdir(parents=False, exist_ok=True)
-        log_file = logs_path / str(self.complete_games)
+        log_file = logs_path / \
+            str(datetime.datetime.today().strftime('%Y-%m-%d.%H:%M:%S'))
         with open(log_file, "wb") as f:
             proto_str = game_log.to_proto().SerializeToString()
             f.write(proto_str)
-        self.complete_games += 1
