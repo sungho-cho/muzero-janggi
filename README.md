@@ -7,7 +7,7 @@
 
 ![ci-testing workflow](https://github.com/werner-duvaud/muzero-general/workflows/CI%20testing/badge.svg)
 
-# MuZero General
+# MuZero Janggi
 
 A commented and [documented](https://github.com/werner-duvaud/muzero-general/wiki/MuZero-Documentation) implementation of MuZero based on the Google DeepMind [paper](https://arxiv.org/abs/1911.08265) (Schrittwieser et al., Nov 2019) and the associated [pseudocode](https://arxiv.org/src/1911.08265v2/anc/pseudocode.py).
 It is designed to be easily adaptable for every games or reinforcement learning environments (like [gym](https://github.com/openai/gym)). You only need to add a [game file](https://github.com/werner-duvaud/muzero-general/tree/master/games) with the hyperparameters and the game class. Please refer to the [documentation](https://github.com/werner-duvaud/muzero-general/wiki/MuZero-Documentation) and the [example](https://github.com/werner-duvaud/muzero-general/blob/master/games/cartpole.py).
@@ -62,6 +62,10 @@ Testing Lunar Lander :
 * Atari Breakout
 
 Tests are done on Ubuntu with 16 GB RAM / Intel i7 / GTX 1050Ti Max-Q. We make sure to obtain a progression and a level which ensures that it has learned. But we do not systematically reach a human level. For certain environments, we notice a regression after a certain time. The proposed configurations are certainly not optimal and we do not focus for now on the optimization of hyperparameters. Any help is welcome.
+
+## Games newly implemented
+
+* Janggi (Check out the [wikipedia page](https://en.wikipedia.org/wiki/Janggi) to learn more about the Korean chess Janggi)
 
 ## Code structure
 
