@@ -7,6 +7,8 @@ import torch
 
 import models
 
+numpy.set_printoptions(threshold=numpy.inf)
+
 
 @ray.remote
 class SelfPlay:
@@ -29,10 +31,8 @@ class SelfPlay:
             "cuda" if self.config.selfplay_on_gpu else "cpu"))
         self.model.eval()
 
-        numpy.set_printoptions(threshold=20)
-
     def continuous_self_play(self, shared_storage, replay_buffer, test_mode=False):
-        print("Continuous self play START")
+        print("Continuous self play START\n\n")
         while ray.get(
             shared_storage.get_info.remote("training_step")
         ) < self.config.training_steps and not ray.get(
@@ -53,7 +53,7 @@ class SelfPlay:
                     "self",
                     0,
                 )
-                print(f"Coninuous self play while NOT TEST")
+                print(f"Coninuous self play while NOT TEST\n\n")
 
                 replay_buffer.save_game.remote(game_history, shared_storage)
 
@@ -71,11 +71,7 @@ class SelfPlay:
                 print(
                     f"episode length: {len(game_history.action_history) - 1}")
                 print(f"total reward: {sum(game_history.reward_history)}")
-                print(
-                    f"mean value: {numpy.mean([value for value in game_history.root_values if value])}")
-                print(f"root values: {game_history.root_values}")
-                # if sum(game_history.reward_history) > 80.0:
-                #     print(f"action history: {game_history.action_history}")
+                print("\n\n")
 
                 # Save to the shared storage
                 shared_storage.set_info.remote(
@@ -191,7 +187,8 @@ class SelfPlay:
 
                 if reward > 0.0:
                     print(f"Positive reward: {reward}")
-                    print(f"Observation:\n{observation}")
+                    print(f"Observation:\n{observation[-1]}")
+                    print("\n\n")
 
                 if render:
                     print(
