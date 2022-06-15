@@ -165,8 +165,7 @@ class Game(AbstractGame):
         for i in range(-7, 8):  # 14 planes
             if i == 0:
                 continue
-            board_one_hot = [[int(env_observation[r][c] == i) for c in range(
-                len(env_observation[0]))] for r in range(len(env_observation))]
+            board_one_hot = (env_observation == i).astype(numpy.float32)
             boards_piece.append(board_one_hot)
             print(board_one_hot)
         board_to_play = numpy.full(  # 1 plane
