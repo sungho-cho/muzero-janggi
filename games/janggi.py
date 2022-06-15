@@ -159,6 +159,8 @@ class Game(AbstractGame):
         return self.get_observation(observation), reward, done
 
     def get_observation(self, env_observation):
+        print(env_observation)
+        print("-----")
         boards_piece = []
         for i in range(-7, 8):  # 14 planes
             if i == 0:
