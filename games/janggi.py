@@ -159,20 +159,13 @@ class Game(AbstractGame):
         return self.get_observation(observation), reward, done
 
     def get_observation(self, env_observation):
-        print(env_observation)
-        print("-----")
         boards_piece = []
         for i in range(-7, 8):  # 14 planes
             if i == 0:
                 continue
-            board_one_hot = (env_observation == i).astype(numpy.float32)
-            boards_piece.append(board_one_hot)
-            print(board_one_hot)
+            boards_piece.append(numpy.where(env_observation == i, 1.0, 0.0))
         board_to_play = numpy.full(  # 1 plane
             (10, 9), self.env.to_play(), dtype="float32")
-        print("-----")
-        print(boards_piece)
-        print(board_to_play)
         return numpy.array(boards_piece + [board_to_play])
 
     def to_play(self):
