@@ -11,6 +11,8 @@ from janggi import JanggiGame
 
 from .abstract_game import AbstractGame
 
+numpy.set_printoptions(threshold=numpy.inf)
+
 
 class MuZeroConfig:
     def __init__(self):
@@ -164,6 +166,8 @@ class Game(AbstractGame):
             boards_piece.append(numpy.where(env_observation == i, 1.0, 0.0))
         board_to_play = numpy.full(  # 1 plane
             (10, 9), self.env.to_play(), dtype="float32")
+        print(boards_piece)
+        print(board_to_play)
         return numpy.array(boards_piece + [board_to_play])
 
     def to_play(self):
