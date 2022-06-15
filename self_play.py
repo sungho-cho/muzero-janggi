@@ -186,9 +186,7 @@ class SelfPlay:
                 observation, reward, done = self.game.step(action)
 
                 if reward > 0.0:
-                    print(f"Positive reward: {reward}")
-                    print(f"Observation:\n{observation[-1]}")
-                    print("\n\n")
+                    print(f"Positive reward: {reward}\n\n")
 
                 if render:
                     print(
