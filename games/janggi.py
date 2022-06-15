@@ -80,8 +80,8 @@ class MuZeroConfig:
         # Training
         self.results_path = pathlib.Path(__file__).resolve().parents[1] / "results" / pathlib.Path(__file__).stem / datetime.datetime.now().strftime("%Y-%m-%d--%H-%M-%S")  # Path to store the model weights and TensorBoard logs
         self.save_model = True  # Save the checkpoint in results_path as model.checkpoint
-        self.training_steps = 100  # Total number of training steps (ie weights update according to a batch) (based on paper)
-        self.batch_size = 2048  # Number of parts of games to train on at each training step (based on paper)
+        self.training_steps = 100000  # Total number of training steps (ie weights update according to a batch) (based on paper)
+        self.batch_size = 4096  # Number of parts of games to train on at each training step (based on paper)
         self.checkpoint_interval = 10  # Number of training steps before using the model for self-playing
         self.value_loss_weight = 1  # Scale the value loss to avoid overfitting of the value function, paper recommends 0.25 (See paper appendix Reanalyze)
         self.train_on_gpu = torch.cuda.is_available()  # Train on GPU if available
