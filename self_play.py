@@ -144,7 +144,7 @@ class SelfPlay:
                     game_history.action_history) <= self.config.max_moves
             ):
                 if len(game_history.action_history) > 0 and len(game_history.action_history) % 10 == 0:
-                    print(f"Move #: {len(game_history.action_history)}")
+                    print(f"Move #: {len(game_history.action_history)}\n\n")
                 assert (
                     len(numpy.array(observation).shape) == 3
                 ), f"Observation should be 3 dimensionnal instead of {len(numpy.array(observation).shape)} dimensionnal. Got observation of shape: {numpy.array(observation).shape}"

@@ -25,7 +25,8 @@ class Trainer:
         # Initialize the network
         self.model = models.MuZeroNetwork(self.config)
         self.model.set_weights(copy.deepcopy(initial_checkpoint["weights"]))
-        self.model.to(torch.device("cuda" if self.config.train_on_gpu else "cpu"))
+        self.model.to(torch.device(
+            "cuda" if self.config.train_on_gpu else "cpu"))
         self.model.train()
 
         self.training_step = initial_checkpoint["training_step"]
@@ -59,7 +60,7 @@ class Trainer:
             )
 
     def continuous_update_weights(self, replay_buffer, shared_storage):
-        print("Continuous update weights START")
+        print("Continuous update weights START\n\n")
         # Wait for the replay buffer to be filled
         while ray.get(shared_storage.get_info.remote("num_played_games")) < 1:
             time.sleep(0.1)
@@ -114,7 +115,8 @@ class Trainer:
                 while (
                     self.training_step
                     / max(
-                        1, ray.get(shared_storage.get_info.remote("num_played_steps"))
+                        1, ray.get(shared_storage.get_info.remote(
+                            "num_played_steps"))
                     )
                     > self.config.ratio
                     and self.training_step < self.config.training_steps
@@ -137,7 +139,7 @@ class Trainer:
             gradient_scale_batch,
         ) = batch
 
-        print("Update weights START")
+        print("Update weights START\n\n")
 
         # Keep values as scalars for calculating the priorities for the prioritized replay
         target_value_scalar = numpy.array(target_value, dtype="float32")
@@ -149,11 +151,13 @@ class Trainer:
         observation_batch = (
             torch.tensor(numpy.array(observation_batch)).float().to(device)
         )
-        action_batch = torch.tensor(action_batch).long().to(device).unsqueeze(-1)
+        action_batch = torch.tensor(
+            action_batch).long().to(device).unsqueeze(-1)
         target_value = torch.tensor(target_value).float().to(device)
         target_reward = torch.tensor(target_reward).float().to(device)
         target_policy = torch.tensor(target_policy).float().to(device)
-        gradient_scale_batch = torch.tensor(gradient_scale_batch).float().to(device)
+        gradient_scale_batch = torch.tensor(
+            gradient_scale_batch).float().to(device)
         # observation_batch: batch, channels, height, width
         # action_batch: batch, num_unroll_steps+1, 1 (unsqueeze)
         # target_value: batch, num_unroll_steps+1
@@ -161,14 +165,15 @@ class Trainer:
         # target_policy: batch, num_unroll_steps+1, len(action_space)
         # gradient_scale_batch: batch, num_unroll_steps+1
 
-        target_value = models.scalar_to_support(target_value, self.config.support_size)
+        target_value = models.scalar_to_support(
+            target_value, self.config.support_size)
         target_reward = models.scalar_to_support(
             target_reward, self.config.support_size
         )
         # target_value: batch, num_unroll_steps+1, 2*support_size+1
         # target_reward: batch, num_unroll_steps+1, 2*support_size+1
 
-        ## Generate predictions
+        # Generate predictions
         value, reward, policy_logits, hidden_state = self.model.initial_inference(
             observation_batch
         )
@@ -182,7 +187,7 @@ class Trainer:
             predictions.append((value, reward, policy_logits))
         # predictions: num_unroll_steps+1, 3, batch, 2*support_size+1 | 2*support_size+1 | 9 (according to the 2nd dim)
 
-        ## Compute losses
+        # Compute losses
         value_loss, reward_loss, policy_loss = (0, 0, 0)
         value, reward, policy_logits = predictions[0]
         # Ignore reward loss for the first batch step
@@ -266,7 +271,7 @@ class Trainer:
         self.optimizer.step()
         self.training_step += 1
 
-        print("Update weights END")
+        print("Update weights END\n\n")
 
         return (
             priorities,
@@ -298,7 +303,8 @@ class Trainer:
     ):
         # Cross-entropy seems to have a better convergence than MSE
         value_loss = (-target_value * torch.nn.LogSoftmax(dim=1)(value)).sum(1)
-        reward_loss = (-target_reward * torch.nn.LogSoftmax(dim=1)(reward)).sum(1)
+        reward_loss = (-target_reward *
+                       torch.nn.LogSoftmax(dim=1)(reward)).sum(1)
         policy_loss = (-target_policy * torch.nn.LogSoftmax(dim=1)(policy_logits)).sum(
             1
         )
