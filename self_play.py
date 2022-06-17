@@ -7,8 +7,7 @@ import torch
 
 import models
 
-
-numpy.set_printoptions(threshold=10)
+numpy.set_printoptions(threshold=numpy.inf)
 
 
 @ray.remote
@@ -33,7 +32,7 @@ class SelfPlay:
         self.model.eval()
 
     def continuous_self_play(self, shared_storage, replay_buffer, test_mode=False):
-        print("Continuous self play START")
+        print("Continuous self play START\n\n")
         while ray.get(
             shared_storage.get_info.remote("training_step")
         ) < self.config.training_steps and not ray.get(
@@ -54,7 +53,7 @@ class SelfPlay:
                     "self",
                     0,
                 )
-                print(f"Coninuous self play while NOT TEST")
+                print(f"Coninuous self play while NOT TEST\n\n")
 
                 replay_buffer.save_game.remote(game_history, shared_storage)
 
@@ -72,11 +71,7 @@ class SelfPlay:
                 print(
                     f"episode length: {len(game_history.action_history) - 1}")
                 print(f"total reward: {sum(game_history.reward_history)}")
-                print(
-                    f"mean value: {numpy.mean([value for value in game_history.root_values if value])}")
-                print(f"root values: {game_history.root_values}")
-                # if sum(game_history.reward_history) > 80.0:
-                #     print(f"action history: {game_history.action_history}")
+                print("\n\n")
 
                 # Save to the shared storage
                 shared_storage.set_info.remote(
@@ -149,7 +144,7 @@ class SelfPlay:
                     game_history.action_history) <= self.config.max_moves
             ):
                 if len(game_history.action_history) > 0 and len(game_history.action_history) % 10 == 0:
-                    print(f"Move #: {len(game_history.action_history)}")
+                    print(f"Move #: {len(game_history.action_history)}\n\n")
                 assert (
                     len(numpy.array(observation).shape) == 3
                 ), f"Observation should be 3 dimensionnal instead of {len(numpy.array(observation).shape)} dimensionnal. Got observation of shape: {numpy.array(observation).shape}"
@@ -191,8 +186,7 @@ class SelfPlay:
                 observation, reward, done = self.game.step(action)
 
                 if reward > 0.0:
-                    print(f"Positive reward: {reward}")
-                    print(f"Observation:\n{observation}")
+                    print(f"Positive reward: {reward}\n\n")
 
                 if render:
                     print(

@@ -11,6 +11,8 @@ from janggi import JanggiGame
 
 from .abstract_game import AbstractGame
 
+numpy.set_printoptions(threshold=numpy.inf)
+
 
 class MuZeroConfig:
     def __init__(self):
@@ -18,7 +20,7 @@ class MuZeroConfig:
         # More information is available here: https://github.com/werner-duvaud/muzero-general/wiki/Hyperparameter-Optimization
 
         self.seed = 0  # Seed for numpy, torch and the game
-        self.max_num_gpus = None  # Fix the maximum number of GPUs to use. It's usually faster to use a single GPU (set it to 1) if it has enough memory. None will use every GPUs available
+        self.max_num_gpus = 2  # Fix the maximum number of GPUs to use. It's usually faster to use a single GPU (set it to 1) if it has enough memory. None will use every GPUs available
 
 
 
@@ -26,7 +28,7 @@ class MuZeroConfig:
         self.observation_shape = (15, 10, 9)  # Dimensions of the game observation, must be 3 (channel, height, width). For a 1D array, please reshape it to (1, 1, length of array)
         self.action_space = list(range(9999))  # Fixed list of all possible actions. You should only edit the length
         self.players = list(range(2))  # List of players. You should only edit the length
-        self.stacked_observations = 8  # Number of previous observations and previous actions to add to the current observation
+        self.stacked_observations = 0  # Number of previous observations and previous actions to add to the current observation
 
         # Evaluate
         self.muzero_player = 0  # Turn Muzero begins to play (0: MuZero plays first, 1: MuZero plays second)
@@ -38,7 +40,7 @@ class MuZeroConfig:
         self.num_workers = 5  # Number of simultaneous threads/workers self-playing to feed the replay buffer
         self.selfplay_on_gpu = False
         self.max_moves = 200  # Maximum number of moves if game is not finished before
-        self.num_simulations = 200  # Number of future moves self-simulated (based on paper)
+        self.num_simulations = 400  # Number of future moves self-simulated (based on paper)
         self.discount = 0.997  # Chronological discount of the reward (based on paper)
         self.temperature_threshold = None  # Number of moves before dropping the temperature given by visit_softmax_temperature_fn to 0 (ie selecting the best action). If None, visit_softmax_temperature_fn is used every time
 
@@ -54,7 +56,7 @@ class MuZeroConfig:
 
         # Network
         self.network = "resnet"  # "resnet" / "fullyconnected"
-        self.support_size = 8  # Value and reward are scaled (with almost sqrt) and encoded on a vector with a range of -support_size to support_size. Choose it so that support_size <= sqrt(max(abs(discounted reward)))
+        self.support_size = 10  # Value and reward are scaled (with almost sqrt) and encoded on a vector with a range of -support_size to support_size. Choose it so that support_size <= sqrt(max(abs(discounted reward)))
 
         # Residual Network
         self.downsample = False  # Downsample observations before representation network, False / "CNN" (lighter) / "resnet" (See paper appendix Network Architecture)
@@ -63,9 +65,9 @@ class MuZeroConfig:
         self.reduced_channels_reward = 64  # Number of channels in reward head
         self.reduced_channels_value = 64  # Number of channels in value head
         self.reduced_channels_policy = 64  # Number of channels in policy head
-        self.resnet_fc_reward_layers = [64]  # Define the hidden layers in the reward head of the dynamic network
-        self.resnet_fc_value_layers = [64]  # Define the hidden layers in the value head of the prediction network
-        self.resnet_fc_policy_layers = [64]  # Define the hidden layers in the policy head of the prediction network
+        self.resnet_fc_reward_layers = [32]  # Define the hidden layers in the reward head of the dynamic network
+        self.resnet_fc_value_layers = [32]  # Define the hidden layers in the value head of the prediction network
+        self.resnet_fc_policy_layers = [32]  # Define the hidden layers in the policy head of the prediction network
 
         # Fully Connected Network
         self.encoding_size = 32
@@ -80,10 +82,10 @@ class MuZeroConfig:
         # Training
         self.results_path = pathlib.Path(__file__).resolve().parents[1] / "results" / pathlib.Path(__file__).stem / datetime.datetime.now().strftime("%Y-%m-%d--%H-%M-%S")  # Path to store the model weights and TensorBoard logs
         self.save_model = True  # Save the checkpoint in results_path as model.checkpoint
-        self.training_steps = 100  # Total number of training steps (ie weights update according to a batch) (based on paper)
-        self.batch_size = 1024  # Number of parts of games to train on at each training step (based on paper)
+        self.training_steps = 150000  # Total number of training steps (ie weights update according to a batch) (based on paper)
+        self.batch_size = 2048  # Number of parts of games to train on at each training step (based on paper)
         self.checkpoint_interval = 10  # Number of training steps before using the model for self-playing
-        self.value_loss_weight = 1  # Scale the value loss to avoid overfitting of the value function, paper recommends 0.25 (See paper appendix Reanalyze)
+        self.value_loss_weight = 0.25  # Scale the value loss to avoid overfitting of the value function, paper recommends 0.25 (See paper appendix Reanalyze)
         self.train_on_gpu = torch.cuda.is_available()  # Train on GPU if available
 
         self.optimizer = "Adam"  # "Adam" or "SGD". Paper uses SGD
@@ -105,7 +107,7 @@ class MuZeroConfig:
         self.PER_alpha = 0.5  # How much prioritization is used, 0 corresponding to the uniform case, paper suggests 1
 
         # Reanalyze (See paper appendix Reanalyse)
-        self.use_last_model_value = False  # Use the last model to provide a fresher, stable n-step value (See paper appendix Reanalyze)
+        self.use_last_model_value = True  # Use the last model to provide a fresher, stable n-step value (See paper appendix Reanalyze)
         self.reanalyse_on_gpu = False
 
 
@@ -125,9 +127,9 @@ class MuZeroConfig:
             Positive float.
         """
         # Values based on paper
-        if trained_steps < 500.0 * self.training_steps:
+        if trained_steps < 0.5 * self.training_steps:
             return 1.0
-        elif trained_steps < 750.0 * self.training_steps:
+        elif trained_steps < 0.75 * self.training_steps:
             return 0.5
         else:
             return 0.25
